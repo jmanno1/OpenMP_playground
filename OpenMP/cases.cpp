@@ -247,3 +247,57 @@ void parallel_sections_merge_sort() {
 	fmt::print(fg(fmt::color::yellow), "\nParallel merge time = {} milliseconds\n\n", ms.count());
 	omp_set_num_threads(1);
 }
+
+// case 6
+void data_sharing_private() {
+	omp_set_num_threads(NUM_THREADS);
+
+	int i = -1;
+	fmt::print(fg(fmt::color::yellow), "'i' before: {}\n", i);
+
+#pragma omp parallel for private(i)
+		for (int x = 0; x < 5; x++) {
+			i = omp_get_thread_num();
+		}
+	// i equals -1 still.
+	fmt::print(fg(fmt::color::yellow), "'i' after 'private': {}\n", i);
+
+#pragma omp parallel for lastprivate(i)
+		for (int x = 0; x < 5; x++) {
+			i = omp_get_thread_num();
+		}
+
+	// will be the value of the last thread to use 'i'
+		fmt::print(fg(fmt::color::yellow), "'i' after 'lastprivate': {}\n\n", i);
+		omp_set_num_threads(1);
+}
+
+//case 7
+void single_master() {
+
+#pragma omp parallel num_threads(NUM_THREADS)
+	{
+#pragma omp critical 
+		fmt::print(fg(fmt::color::yellow),
+			"All threads print. Thread: {}\n",
+			omp_get_thread_num());
+
+#pragma omp single
+		fmt::print(fg(fmt::color::light_green),
+			"\nOne thread prints. Thread: {}\n\n",
+			omp_get_thread_num());
+
+	// implicit barrier wait for single, no wait on master
+
+#pragma omp master
+		fmt::print(fg(fmt::color::light_green),
+			"\nMaster thread prints. Thread: {}\n\n",
+			omp_get_thread_num());
+
+#pragma omp critical 
+		fmt::print(fg(fmt::color::yellow),
+			"All threads print. Thread: {}\n",
+			omp_get_thread_num());
+	}
+	fmt::print("\n");
+}

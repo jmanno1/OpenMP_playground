@@ -13,6 +13,8 @@ auto const menu =
 	"\t 3. Parallel loop - Highly Parallel task\n"
 	"\t 4. Parallel loop - Calculate Pi task\n"
 	"\t 5. Parallel sections - Merge sort\n"
+	"\t 6. Data-Sharing clauses\n"
+	"\t 7. Single / Master\n"
 	"\t-1. Quit this program\n\n";
 
 
@@ -60,6 +62,13 @@ int main() {
 			fmt::print("\n*** Parallel sections - Merge sort ***\n\n");
 			parallel_sections_merge_sort();
 			break;
+		case 6:
+			fmt::print("\n*** Data-Sharing clauses ***\n\n");
+			data_sharing_private();
+			break;
+		case 7:
+			fmt::print("\n*** Single / Master ***\n\n");
+			single_master();
 		case -1:
 			fmt::print("\nGood bye!\n");
 			return 0;

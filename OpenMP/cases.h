@@ -15,4 +15,11 @@ void parallel_loop_pi();
 
 //case 5
 void parallel_sections_merge_sort();
+
+// case 6
+void data_sharing_private();
+
+// case 7
+void single_master();
+
 #endif // !CASES_H
