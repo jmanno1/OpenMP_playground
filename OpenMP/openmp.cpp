@@ -8,11 +8,12 @@
 
 auto const menu = 
 	"Choices:\n"
-	"\t1. Parallel code block\n"
-	"\t2. Parallel code block with critical\n"
-	"\t3. Parallel loop - Highly Parallel task\n"
-	"\t4. Parallel loop - Calculate Pi task\n"
-	"\t5. Parallel sections - Merge sort\n\n";
+	"\t 1. Parallel code block\n"
+	"\t 2. Parallel code block with critical\n"
+	"\t 3. Parallel loop - Highly Parallel task\n"
+	"\t 4. Parallel loop - Calculate Pi task\n"
+	"\t 5. Parallel sections - Merge sort\n"
+	"\t-1. Quit this program\n\n";
 
 
 using namespace std;
@@ -59,6 +60,9 @@ int main() {
 			fmt::print("\n*** Parallel sections - Merge sort ***\n\n");
 			parallel_sections_merge_sort();
 			break;
+		case -1:
+			fmt::print("\nGood bye!\n");
+			return 0;
 		default:
 			fmt::print("Please enter a valid choice\n");
 		}		
