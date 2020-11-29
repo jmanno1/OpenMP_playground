@@ -13,4 +13,6 @@ void parallel_loop_task();
 // case 4
 void parallel_loop_pi();
 
+//case 5
+void parallel_sections_merge_sort();
 #endif // !CASES_H

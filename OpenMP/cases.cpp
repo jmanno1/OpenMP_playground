@@ -3,6 +3,8 @@
 #include<chrono>
 #include<vector>
 #include<numeric>
+#include<algorithm>
+#include <random>
 #include<omp.h>
 
 #include"fmt/color.h"
@@ -90,7 +92,7 @@ void parallel_loop_task() {
 	omp_set_num_threads(1);
 
 	ms = tp_2 - tp_1;
-	fmt::print(fg(fmt::color::yellow), "Operations complete with threading in {} milliseconds\n", ms.count());
+	fmt::print(fg(fmt::color::yellow), "Operations complete with threading in {} milliseconds\n\n", ms.count());
 }
 
 // case 4
@@ -98,7 +100,7 @@ void parallel_loop_pi() {
 	long constexpr num_steps = 100000000;
 	double constexpr step = 1.0 / num_steps;
 
-	fmt::print(fg(fmt::color::yellow), "Without Parallel loops (Single thread mode): ");
+	fmt::print(fg(fmt::color::yellow), "Without Parallel loops (Single thread mode):\n");
 	double pi, x, d_sum = 0.0;
 	auto tp_1 = high_resolution_clock::now();
 	for (int i = 0; i < num_steps; i++) {
@@ -107,12 +109,13 @@ void parallel_loop_pi() {
 	}
 	pi = d_sum * step;
 	auto tp_2 = high_resolution_clock::now();
-	duration<double, std::micro> ms = tp_2 - tp_1;
+	duration<double, std::milli> ms = tp_2 - tp_1;
 
-	fmt::print(fg(fmt::color::yellow), "PI = {:.09}, Time = {} microseconds\n", pi, ms.count());
+	fmt::print(fg(fmt::color::yellow), "PI = {:.09}, Time = {} milliseconds\n", pi, ms.count());
+
 	d_sum = 0.0;
 	omp_set_num_threads(NUM_THREADS);
-	fmt::print(fg(fmt::color::yellow), "With Parallel loops (multi thread mode) using {} threads: ", NUM_THREADS);
+	fmt::print(fg(fmt::color::yellow), "With Parallel loops (multi thread mode) using {} threads:\n", NUM_THREADS);
 
 	tp_1 = high_resolution_clock::now();
 
@@ -125,6 +128,122 @@ void parallel_loop_pi() {
 	tp_2 = high_resolution_clock::now();
 	ms = tp_2 - tp_1;
 
-	fmt::print(fg(fmt::color::yellow), "PI = {:.09}, Time = {} microseconds\n", pi, ms.count());
+	fmt::print(fg(fmt::color::yellow), "PI = {:.09}, Time = {} milliseconds\n\n", pi, ms.count());
+	omp_set_num_threads(1);
+}
+
+// case 5
+// Original merge sort code taken from: https://www.geeksforgeeks.org/merge-sort/
+void merge(int* arr, int l, int m, int r)
+{
+	int n1 = m - l + 1;
+	int n2 = r - m;
+
+	// Create temp arrays
+	vector<int> L(n1), R(n2);
+	//int L[n1], R[n2];
+
+#pragma omp parallel sections // starts a new team
+	{
+		// Copy data to temp arrays L[] and R[]
+#pragma omp section 
+		{
+			for (int i = 0; i < n1; i++) {
+				L[i] = arr[l + i];
+			}
+		}
+
+#pragma omp section 
+		{
+			for (int j = 0; j < n2; j++) {
+				R[j] = arr[m + 1 + j];
+			}
+		}
+	}
+
+	// Merge the temp arrays back into arr[l..r]
+	// Initial index of first (i), second (j), and merged (k) subarray
+	int i = 0;
+	int j = 0;
+	int k = l;
+
+	while (i < n1 && j < n2) {
+		if (L[i] <= R[j]) {
+			arr[k] = L[i];
+			i++;
+		}
+		else {
+			arr[k] = R[j];
+			j++;
+		}
+		k++;
+	}
+
+	// Copy the remaining elements of
+	// L[], if there are any
+	while (i < n1) {
+		arr[k] = L[i];
+		i++;
+		k++;
+	}
+
+	// Copy the remaining elements of
+	// R[], if there are any
+	while (j < n2) {
+		arr[k] = R[j];
+		j++;
+		k++;
+	}
+}
+
+void mergeSort(int* arr, int l, int r) {
+	if (l >= r) {
+		return; //returns recursively
+	}
+	int m = (l + r - 1) / 2;
+#pragma omp parallel sections // starts a new team
+	{
+#pragma omp section 
+		{
+			mergeSort(arr, l, m);
+		}
+#pragma omp section
+		{
+			mergeSort(arr, m + 1, r);
+		}
+	}
+	merge(arr, l, m, r);
+}
+
+void parallel_sections_merge_sort() {
+	omp_set_num_threads(NUM_THREADS);
+	random_device rd;
+	mt19937 g(rd());
+
+	// creating random buffer
+	vector<int> v(BUF_LEN);
+	std::iota(v.begin(), v.end(), 1);
+	shuffle(v.begin(), v.end(), g);
+
+	// Print buffer details - before sort
+	fmt::print(fg(fmt::color::yellow), "Buffer size to sort: {}\nBefore Sorting - First and last five\n", BUF_LEN);
+
+	for_each_n(v.begin(), 5, [](auto i) {fmt::print("{} ", i); });
+	fmt::print("\n...\n");
+	for_each_n(v.end() -5, 5, [](auto i) {fmt::print("{} ", i); });
+
+	// sort
+	auto tp_1 = high_resolution_clock::now();
+	mergeSort(v.data(), 0, v.size() - 1);
+	sort(v.begin(), v.end());
+	auto tp_2 = high_resolution_clock::now();
+	duration<double, std::milli> ms = tp_2 - tp_1;
+
+	// Print buffer details - after sort
+	fmt::print(fg(fmt::color::yellow), "\n\nAfter Sorting - First and last five\n");
+	for_each_n(v.begin(), 5, [](auto i) {fmt::print("{} ", i); });
+	fmt::print("\n...\n");
+	for_each_n(v.end()-5, 5, [](auto i) {fmt::print("{} ", i); });
+	fmt::print(fg(fmt::color::yellow), "\nParallel merge time = {} milliseconds\n\n", ms.count());
 	omp_set_num_threads(1);
 }
