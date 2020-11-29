@@ -7,6 +7,10 @@ void parallel_block();
 //case 2
 void parallel_block_critical();
 
-void parallel_loop_example();
+//case 3
+void parallel_loop_task();
+
+// case 4
+void parallel_loop_pi();
 
 #endif // !CASES_H
