@@ -15,6 +15,7 @@ auto const menu =
 	"\t 5. Parallel sections - Merge sort\n"
 	"\t 6. Data-Sharing clauses\n"
 	"\t 7. Single / Master\n"
+	"\t 8. Barrier / Nowait\n"
 	"\t-1. Quit this program\n\n";
 
 
@@ -69,6 +70,11 @@ int main() {
 		case 7:
 			fmt::print("\n*** Single / Master ***\n\n");
 			single_master();
+			break;
+		case 8:
+			fmt::print("\n*** Barrier / Nowait ***\n\n");
+			 barrier_nowait();
+			 break;
 		case -1:
 			fmt::print("\nGood bye!\n");
 			return 0;

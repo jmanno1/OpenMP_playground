@@ -301,3 +301,54 @@ void single_master() {
 	}
 	fmt::print("\n");
 }
+
+//case 8
+void barrier_nowait() {
+
+	fmt::print(fg(fmt::color::light_green), "Barrier example\n");
+
+#pragma omp parallel num_threads(NUM_THREADS / 2)
+	{
+#pragma omp for
+		for (int i = 0; i < 5; i++) {
+#pragma omp critical
+			fmt::print(fg(fmt::color::yellow),
+				"Statement 1. Thread: {}\n",
+				omp_get_thread_num());
+		}
+
+#pragma omp barrier
+
+#pragma omp for
+		for (int i = 0; i < 5; i++) {
+#pragma omp critical
+			fmt::print(fg(fmt::color::yellow),
+				"Statement 2. Thread: {}\n",
+				omp_get_thread_num());
+		}
+
+	}
+
+	fmt::print(fg(fmt::color::light_green), "\nNowait example\n");
+
+#pragma omp parallel num_threads(NUM_THREADS / 2)
+	{
+#pragma omp for nowait
+		for (int i = 0; i < 5; i++) {
+#pragma omp critical
+			fmt::print(fg(fmt::color::yellow),
+				"Statement 1. Thread: {}\n",
+				omp_get_thread_num());
+		}
+
+#pragma omp for nowait
+		for (int i = 0; i < 5; i++) {
+#pragma omp critical
+			fmt::print(fg(fmt::color::yellow),
+				"Statement 2. Thread: {}\n",
+				omp_get_thread_num());
+		}
+	}
+
+	fmt::print("\n");
+}

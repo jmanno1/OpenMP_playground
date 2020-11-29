@@ -22,4 +22,7 @@ void data_sharing_private();
 // case 7
 void single_master();
 
+// case 8
+void barrier_nowait();
+
 #endif // !CASES_H
