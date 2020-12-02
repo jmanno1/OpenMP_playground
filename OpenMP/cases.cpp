@@ -277,7 +277,7 @@ void single_master() {
 
 #pragma omp parallel num_threads(NUM_THREADS)
 	{
-#pragma omp critical 
+
 		fmt::print(fg(fmt::color::yellow),
 			"All threads print. Thread: {}\n",
 			omp_get_thread_num());
@@ -294,7 +294,7 @@ void single_master() {
 			"\nMaster thread prints. Thread: {}\n\n",
 			omp_get_thread_num());
 
-#pragma omp critical 
+ 
 		fmt::print(fg(fmt::color::yellow),
 			"All threads print. Thread: {}\n",
 			omp_get_thread_num());
